@@ -76,37 +76,6 @@ Phrases like "due friday", "by end of week", "high priority", "blocks the slides
 
 After adding, the agent fetches all tasks, re-ranks urgency, and prints the updated pipeline.
 
-### Show the pipeline
-
-```bash
-td ls
-```
-
-Displays the current ranked task list with urgency scores and reasons. No macOS notifications or sticky notes are created.
-
-### Morning briefing
-
-```bash
-td brief
-```
-
-Ranks all tasks, sends a macOS notification with the top 3, and creates a desktop sticky note with the full pipeline. Designed to run from a cron job:
-
-```bash
-# Add to crontab (crontab -e):
-0 9 * * * cd /path/to/todo-agent && .venv/bin/td brief
-```
-
-### Mark a task done
-
-```bash
-td done <notion-page-id>
-```
-
-Marks the task as complete in Notion, then re-ranks the pipeline. Tasks that were blocked by the completed task may move up in priority.
-
-You can find the Notion page ID in the task's URL — it's the 32-character hex string at the end.
-
 ### Interactive mode
 
 ```bash
@@ -134,7 +103,6 @@ You: what should I do first today?
 Add `-v` to any command to see which tools the agent is calling:
 
 ```bash
-td ls -v
 td add fix the login bug due monday -v
 ```
 
@@ -163,9 +131,7 @@ td (CLI, Typer)
      ├─ get_all_tasks          ← reads from Notion
      ├─ add_task_to_notion     ← writes to Notion
      ├─ update_urgency_score   ← writes to Notion
-     ├─ complete_task_in_notion← writes to Notion
      ├─ compute_pipeline       ← LLM reasoning prompt
-     └─ send_notification      ← macOS osascript
 ```
 
 ## File Structure

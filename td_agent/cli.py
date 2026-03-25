@@ -113,44 +113,6 @@ def add(
 
 
 @app.command()
-def brief(
-    verbose: bool = typer.Option(False, "--verbose", "-v", help="Show tool calls"),
-):
-    """Morning briefing — rank all tasks, sticky + notification."""
-    run(
-        "Run the morning briefing. Get all tasks, compute the pipeline, "
-        "send a macOS notification with the top 3, and create a sticky "
-        "with the full ranked list.",
-        verbose=verbose,
-    )
-
-
-@app.command(name="ls")
-def list_tasks(
-    verbose: bool = typer.Option(False, "--verbose", "-v", help="Show tool calls"),
-):
-    """Show current pipeline — no Mac output."""
-    run(
-        "Show me the current pipeline. Get all tasks, compute urgency, "
-        "and print the ranked list with reasons. No Mac notifications needed.",
-        verbose=verbose,
-    )
-
-
-@app.command()
-def done(
-    task_id: str = typer.Argument(help="Notion page ID of the task to complete"),
-    verbose: bool = typer.Option(False, "--verbose", "-v", help="Show tool calls"),
-):
-    """Mark a task complete and re-rank the pipeline."""
-    run(
-        f"Mark this task as done: {task_id}. "
-        "Then reload all tasks and show me the updated pipeline.",
-        verbose=verbose,
-    )
-
-
-@app.command()
 def setup():
     """Interactive first-time setup — writes .env file."""
     console.print(
@@ -192,7 +154,7 @@ def setup():
         f.write(f"NOTION_DATABASE_ID={notion_db}\n")
 
     console.print("\n[green bold]Done.[/green bold] .env written.")
-    console.print("Run [cyan]td ls[/cyan] to verify your connection.\n")
+    console.print("Run [cyan]td add buy milk[/cyan] to verify your connection.\n")
 
 
 # ── Interactive mode ────────────────────────────────────────────────────────

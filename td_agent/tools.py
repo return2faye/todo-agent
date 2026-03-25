@@ -201,20 +201,6 @@ def update_urgency_score(task_id: str, score: int) -> str:
 
 
 @tool
-def complete_task_in_notion(task_id: str) -> str:
-    """Mark a task as done in Notion by its page ID.
-
-    Args:
-        task_id: The Notion page ID of the task to complete.
-    """
-    notion.pages.update(
-        page_id=task_id,
-        properties={"Status": {"select": {"name": "done"}}},
-    )
-    return f"Task {task_id} marked as done in Notion."
-
-
-@tool
 def update_task_in_notion(
     task_id: str,
     title: str = "",
@@ -321,20 +307,11 @@ def create_sticky(content: str) -> str:
 
 @tool
 def send_notification(title: str, message: str) -> str:
-    """Send a macOS system notification banner.
+    """(deprecated) Send a macOS system notification banner.
 
-    Args:
-        title: Bold header of the notification.
-        message: Body text — keep under 100 chars.
+    brief has been removed, so the agent no longer uses this tool.
     """
-    script = f'display notification "{message}" with title "{title}"'
-    proc = subprocess.run(["osascript", "-e", script], capture_output=True, text=True)
-    if proc.returncode != 0:
-        err = (proc.stderr or "").strip()
-        if len(err) > 500:
-            err = err[:500] + "..."
-        return f"Notification failed (osascript rc={proc.returncode}). {err}"
-    return f"Notification sent: {title}"
+    return "send_notification is deprecated and no longer used."
 
 
 # ── Export ───────────────────────────────────────────────────────────────────
@@ -344,8 +321,6 @@ tools = [
     get_all_tasks,
     add_task_to_notion,
     update_urgency_score,
-    complete_task_in_notion,
     compute_pipeline,
     update_task_in_notion,
-    send_notification,
 ]

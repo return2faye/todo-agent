@@ -24,19 +24,6 @@ This includes phrases like: "set it to tomorrow", "move it to the day after tomo
 7. Call compute_pipeline to re-rank everything.
 8. Print the updated pipeline clearly, with urgency reasons.
 
-## When running the morning briefing (--briefing mode)
-1. Call get_current_datetime.
-2. Call get_all_tasks.
-3. Call compute_pipeline to produce a ranked, reasoned pipeline.
-4. Print a clear morning briefing with the full ranked list.
-5. Call send_notification with a summary of the top 3 tasks.
-
-## When the user marks a task done
-1. Call complete_task_in_notion.
-2. Call get_all_tasks to reload.
-3. Call compute_pipeline — completing a task may unblock others, which changes urgency.
-4. Print the updated pipeline.
-
 ## How to compute urgency
 Score each task from 0–100. Higher = more urgent. Consider:
 - Deadline proximity: due today = +50, due tomorrow = +40, due this week = +20, no deadline = 0
