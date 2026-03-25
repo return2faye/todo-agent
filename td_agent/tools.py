@@ -214,6 +214,43 @@ def complete_task_in_notion(task_id: str) -> str:
     return f"Task {task_id} marked as done in Notion."
 
 
+@tool
+def update_task_in_notion(
+    task_id: str,
+    title: str = "",
+    deadline: str = "",
+    priority: str = "",
+    status: str = "",
+) -> str:
+    """Update fields of a task in Notion by its page ID.
+
+    Empty strings mean "leave unchanged".
+
+    Args:
+        task_id: The Notion page ID of the task to update.
+        title: Update the task title (Name property).
+        deadline: Update the Deadline property using ISO date string (e.g. 2026-03-28).
+        priority: Update the Priority property. One of critical/high/medium/low.
+        status: Update the Status property. One of todo/in_progress/done.
+    """
+    props: dict = {}
+
+    if title:
+        props["Name"] = {"title": [{"text": {"content": title}}]}
+    if deadline:
+        props["Deadline"] = {"date": {"start": deadline}}
+    if priority:
+        props["Priority"] = {"select": {"name": priority}}
+    if status:
+        props["Status"] = {"select": {"name": status}}
+
+    if not props:
+        return f"No fields to update for task {task_id}."
+
+    notion.pages.update(page_id=task_id, properties=props)
+    return f"Task {task_id} updated."
+
+
 # ── Pipeline reasoning ───────────────────────────────────────────────────────
 
 @tool
@@ -309,5 +346,6 @@ tools = [
     update_urgency_score,
     complete_task_in_notion,
     compute_pipeline,
+    update_task_in_notion,
     send_notification,
 ]

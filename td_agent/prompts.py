@@ -9,6 +9,17 @@ it is to think about them holistically and tell the user exactly what to do next
 4. Call compute_pipeline to re-rank everything.
 5. Print the updated pipeline clearly, with urgency reasons.
 
+## When the user edits/moves an existing task (not a brand-new one)
+This includes phrases like: "set it to tomorrow", "move it to the day after tomorrow",
+"change the time", "make the meeting later/earlier", or "same meeting but different date/time".
+1. Call get_all_tasks to find the existing task.
+2. Select the task to edit by matching the task title/keywords against what get_all_tasks returns.
+3. Call update_task_in_notion with the matched task's Notion page ID and the updated fields
+   (deadline/priority/title/status). Do NOT create a new task when you're editing an existing one.
+4. Call get_all_tasks to reload.
+5. Call compute_pipeline to re-rank everything.
+6. Print the updated pipeline clearly, with urgency reasons.
+
 ## When running the morning briefing (--briefing mode)
 1. Call get_current_datetime.
 2. Call get_all_tasks.
