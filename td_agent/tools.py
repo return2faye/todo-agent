@@ -4,7 +4,12 @@ from datetime import datetime
 from notion_client import Client
 from langchain_core.tools import tool
 
-notion = Client(auth=os.environ["NOTION_API_KEY"])
+# Pin to a stable Notion API version to avoid unexpected endpoint/schema changes.
+# (notion-client v3 defaults to a very new date, which may cause 400s for some endpoints.)
+notion = Client(
+    auth=os.environ["NOTION_API_KEY"],
+    notion_version="2022-06-28",
+)
 DATABASE_ID = os.environ["NOTION_DATABASE_ID"]
 
 
@@ -30,50 +35,100 @@ def get_all_tasks() -> str:
     """Fetch all pending tasks (status: todo or in_progress) from Notion.
     Returns a JSON-like string with id, title, deadline, priority,
     urgency_score, depends_on, and notes for each task."""
-    response = notion.databases.query(
-        database_id=DATABASE_ID,
-        filter={
-            "or": [
-                {"property": "Status", "select": {"equals": "todo"}},
-                {"property": "Status", "select": {"equals": "in_progress"}},
-            ]
-        },
-    )
-    tasks = []
-    for page in response["results"]:
-        props = page["properties"]
+    # notion-client v3.0.0 does not expose `databases.query()`.
+    # Use the underlying Notion API endpoint:
+    # POST /v1/databases/{database_id}/query
+    tasks: list[dict] = []
+    start_cursor: str | None = None
+    allowed_statuses = {"todo", "in_progress"}
 
-        title_parts = props.get("Name", {}).get("title", [])
-        title = title_parts[0]["plain_text"] if title_parts else "Untitled"
+    while True:
+        body: dict = {
+            "page_size": 100,
+        }
+        if start_cursor:
+            body["start_cursor"] = start_cursor
 
-        deadline_obj = props.get("Deadline", {}).get("date")
-        deadline = deadline_obj["start"] if deadline_obj else None
+        try:
+            response = notion.request(
+                path=f"databases/{DATABASE_ID}/query",
+                method="POST",
+                body=body,
+            )
+        except Exception as e:
+            # Surface Notion error details to help debugging quickly.
+            raw_body = getattr(e, "body", None)
+            if isinstance(raw_body, str) and len(raw_body) > 500:
+                raw_body = raw_body[:500] + "..."
+            return (
+                "Notion query failed.\n"
+                f"type={type(e).__name__}\n"
+                f"error={str(e)}\n"
+                f"code={getattr(e, 'code', None)}\n"
+                f"status={getattr(e, 'status', None)}\n"
+                f"body={raw_body}"
+            )
 
-        priority_obj = props.get("Priority", {}).get("select")
-        priority = priority_obj["name"] if priority_obj else "medium"
+        for page in response.get("results", []):
+            props = page["properties"]
 
-        score_obj = props.get("Urgency Score", {}).get("number")
-        score = score_obj if score_obj is not None else 0
+            title_parts = props.get("Name", {}).get("title", [])
+            title = title_parts[0]["plain_text"] if title_parts else "Untitled"
 
-        depends_parts = props.get("Depends On", {}).get("rich_text", [])
-        depends_on = depends_parts[0]["plain_text"] if depends_parts else ""
+            deadline_obj = props.get("Deadline", {}).get("date")
+            deadline = deadline_obj["start"] if deadline_obj else None
 
-        notes_parts = props.get("Notes", {}).get("rich_text", [])
-        notes = notes_parts[0]["plain_text"] if notes_parts else ""
+            priority_obj = props.get("Priority", {}).get("select")
+            priority = priority_obj["name"] if priority_obj else "medium"
 
-        status_obj = props.get("Status", {}).get("select")
-        status = status_obj["name"] if status_obj else "todo"
+            score_obj = props.get("Urgency Score", {}).get("number")
+            score = score_obj if score_obj is not None else 0
 
-        tasks.append({
-            "id": page["id"],
-            "title": title,
-            "deadline": deadline,
-            "priority": priority,
-            "urgency_score": score,
-            "depends_on": depends_on,
-            "notes": notes,
-            "status": status,
-        })
+            depends_parts = props.get("Depends On", {}).get("rich_text", [])
+            depends_on = (
+                depends_parts[0]["plain_text"] if depends_parts else ""
+            )
+
+            notes_parts = props.get("Notes", {}).get("rich_text", [])
+            notes = notes_parts[0]["plain_text"] if notes_parts else ""
+
+            status_obj = props.get("Status", {}).get("select")
+            status = None
+            # Status may be configured as "select" or "status" depending on your Notion DB.
+            if status_obj:
+                status = status_obj.get("name")
+            if not status:
+                status_obj = props.get("Status", {}).get("status")
+                status = status_obj.get("name") if status_obj else None
+            if not status:
+                ms = props.get("Status", {}).get("multi_select")
+                if ms and isinstance(ms, list) and ms:
+                    # If multi-select is used, pick the first matching status.
+                    status = next(
+                        (x.get("name") for x in ms if x.get("name") in allowed_statuses),
+                        None,
+                    )
+
+            if status not in allowed_statuses:
+                continue
+
+            tasks.append(
+                {
+                    "id": page["id"],
+                    "title": title,
+                    "deadline": deadline,
+                    "priority": priority,
+                    "urgency_score": score,
+                    "depends_on": depends_on,
+                    "notes": notes,
+                    "status": status,
+                }
+            )
+        if not response.get("has_more"):
+            break
+        start_cursor = response.get("next_cursor")
+        if not start_cursor:
+            break
 
     if not tasks:
         return "No pending tasks found."

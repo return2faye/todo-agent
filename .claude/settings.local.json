@@ -6,7 +6,21 @@
       "Bash(python3 -m venv .venv)",
       "Bash(td --help)",
       "Bash(td add:*)",
-      "Bash(git init:*)"
+      "Bash(git init:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(python -c \"import agent; print\\(agent.__file__\\)\")",
+      "Bash(python -c \"import sys; print\\([p for p in sys.path if ''todo'' in p]\\)\")",
+      "Bash(/Users/macz/Documents/dev/agents/todo-agent/.venv/bin/python -c \"from agent import app; print\\(''OK''\\)\")",
+      "Bash(/Users/macz/Documents/dev/agents/todo-agent/.venv/bin/td --help)",
+      "Bash(/Users/macz/Documents/dev/agents/todo-agent/.venv/bin/python -c \"import sys; print\\(sys.path\\)\")",
+      "Bash(/Users/macz/Documents/dev/agents/todo-agent/.venv/bin/python -S -c \"import sys; print\\(sys.path\\)\")",
+      "Bash(/Users/macz/Documents/dev/agents/todo-agent/.venv/bin/python -c \"import td_agent; print\\(td_agent.__file__\\)\")",
+      "Bash(pip uninstall:*)",
+      "Bash(chmod +x /Users/macz/Documents/dev/agents/todo-agent/bin/td)",
+      "Bash(/Users/macz/Documents/dev/agents/todo-agent/bin/td --help)",
+      "Bash(/Users/macz/Documents/dev/agents/todo-agent/.venv/bin/python -c \":*)",
+      "Bash(python -c \":*)"
     ]
   }
 }

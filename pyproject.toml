@@ -16,7 +16,7 @@ dependencies = [
 ]
 
 [tool.setuptools]
-py-modules = ["agent", "tools", "prompts"]
+packages = ["td_agent"]
 
 [project.scripts]
-td = "agent:app"
+td = "td_agent.cli:app"

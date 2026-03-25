@@ -33,7 +33,7 @@ Then share the database with your Notion integration.
 git clone <your-repo-url> && cd todo-agent
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -e .
+pip install -e . --config-settings editable_mode=compat
 ```
 
 This installs `td` as a command in your virtual environment. To make it available in every new terminal session, add to your `~/.zshrc`:
@@ -173,13 +173,16 @@ td (CLI, Typer)
 
 ```
 todo-agent/
-├── .env               ← API keys (git-ignored)
+├── .env                   ← API keys (git-ignored)
 ├── .gitignore
-├── agent.py           ← CLI entry point, Typer app, LangGraph agent
-├── tools.py           ← All @tool functions (Notion + macOS + reasoning)
-├── prompts.py         ← System prompt defining orchestrator behavior
-├── pyproject.toml     ← Package config, makes `td` installable
-└── requirements.txt   ← Dependencies
+├── agent.py               ← Thin wrapper so `python agent.py` still works
+├── pyproject.toml         ← Package config, makes `td` installable
+├── requirements.txt       ← Dependencies
+└── td_agent/              ← Main package
+    ├── __init__.py
+    ├── cli.py             ← Typer app, LangGraph agent setup, run loop
+    ├── tools.py           ← All @tool functions (Notion + macOS + reasoning)
+    └── prompts.py         ← System prompt defining orchestrator behavior
 ```
 
 ## License
