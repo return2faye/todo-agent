@@ -231,10 +231,15 @@ def compute_pipeline(tasks_json: str, current_datetime: str) -> str:
         tasks_json: The raw output from get_all_tasks.
         current_datetime: ISO string of right now.
     """
+    # Always use the tool runtime clock.
+    # The agent may sometimes pass a stale `current_datetime` from prior context;
+    # using `datetime.now()` here makes the reasoning prompt consistent.
+    tool_now = datetime.now().isoformat()
+
     # This tool is intentionally a pass-through prompt injection —
     # the LLM does the reasoning when it receives this tool's result.
     return (
-        f"Current time: {current_datetime}\n\n"
+        f"Current time: {tool_now}\n\n"
         f"Tasks to analyse:\n{tasks_json}\n\n"
         "Now rank these tasks by urgency. For each task compute a score 0-100 "
         "based on: deadline proximity, how many other tasks depend on it, and "
