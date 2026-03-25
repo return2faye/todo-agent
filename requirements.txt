@@ -1,0 +1,6 @@
+langgraph
+langchain-openai
+notion-client
+python-dotenv
+typer
+rich

@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "td"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "langgraph",
+    "langchain-openai",
+    "notion-client",
+    "python-dotenv",
+    "typer",
+    "rich",
+]
+
+[tool.setuptools]
+py-modules = ["agent", "tools", "prompts"]
+
+[project.scripts]
+td = "agent:app"
