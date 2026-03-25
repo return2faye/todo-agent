@@ -165,7 +165,6 @@ td (CLI, Typer)
      ├─ update_urgency_score   ← writes to Notion
      ├─ complete_task_in_notion← writes to Notion
      ├─ compute_pipeline       ← LLM reasoning prompt
-     ├─ create_sticky          ← macOS osascript
      └─ send_notification      ← macOS osascript
 ```
 

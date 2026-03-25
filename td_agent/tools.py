@@ -252,16 +252,29 @@ def create_sticky(content: str) -> str:
     Args:
         content: The text to display in the sticky note.
     """
-    # Escape double quotes for AppleScript
-    safe = content.replace('"', '\\"').replace("\n", "\\n")
-    script = f'''
-    tell application "Stickies"
-        activate
-        make new note with properties {{text:"{safe}"}}
-    end tell
-    '''
-    subprocess.run(["osascript", "-e", script], capture_output=True)
-    return "Sticky note created on desktop."
+    # Escape special characters for AppleScript string literal.
+    # (Backslash must be escaped before others.)
+    safe = content.replace("\\", "\\\\").replace('"', '\\"').replace("\n", "\\n")
+
+    script = (
+        'tell application "Stickies"\n'
+        "activate\n"
+        f'make new note with properties {{text:"{safe}"}}\n'
+        "end tell"
+    )
+
+    proc = subprocess.run(
+        ["osascript", "-e", script],
+        capture_output=True,
+        text=True,
+    )
+    if proc.returncode != 0:
+        err = (proc.stderr or "").strip()
+        if len(err) > 500:
+            err = err[:500] + "..."
+        return f"Sticky creation failed (osascript rc={proc.returncode}). {err}"
+
+    return "Sticky note created."
 
 
 @tool
@@ -273,7 +286,12 @@ def send_notification(title: str, message: str) -> str:
         message: Body text — keep under 100 chars.
     """
     script = f'display notification "{message}" with title "{title}"'
-    subprocess.run(["osascript", "-e", script], capture_output=True)
+    proc = subprocess.run(["osascript", "-e", script], capture_output=True, text=True)
+    if proc.returncode != 0:
+        err = (proc.stderr or "").strip()
+        if len(err) > 500:
+            err = err[:500] + "..."
+        return f"Notification failed (osascript rc={proc.returncode}). {err}"
     return f"Notification sent: {title}"
 
 
@@ -286,6 +304,5 @@ tools = [
     update_urgency_score,
     complete_task_in_notion,
     compute_pipeline,
-    create_sticky,
     send_notification,
 ]

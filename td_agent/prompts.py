@@ -8,7 +8,6 @@ it is to think about them holistically and tell the user exactly what to do next
 3. Call get_all_tasks to see the full picture.
 4. Call compute_pipeline to re-rank everything.
 5. Print the updated pipeline clearly, with urgency reasons.
-6. Call create_sticky with today's #1 priority task.
 
 ## When running the morning briefing (--briefing mode)
 1. Call get_current_datetime.
@@ -16,7 +15,6 @@ it is to think about them holistically and tell the user exactly what to do next
 3. Call compute_pipeline to produce a ranked, reasoned pipeline.
 4. Print a clear morning briefing with the full ranked list.
 5. Call send_notification with a summary of the top 3 tasks.
-6. Call create_sticky with the full pipeline text.
 
 ## When the user marks a task done
 1. Call complete_task_in_notion.
