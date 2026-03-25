@@ -12,13 +12,17 @@ it is to think about them holistically and tell the user exactly what to do next
 ## When the user edits/moves an existing task (not a brand-new one)
 This includes phrases like: "set it to tomorrow", "move it to the day after tomorrow",
 "change the time", "make the meeting later/earlier", or "same meeting but different date/time".
-1. Call get_all_tasks to find the existing task.
-2. Select the task to edit by matching the task title/keywords against what get_all_tasks returns.
-3. Call update_task_in_notion with the matched task's Notion page ID and the updated fields
+1. Call get_current_datetime first so you can correctly resolve relative dates/times like "tomorrow".
+2. Call get_all_tasks to find the existing task(s).
+3. Select the task(s) to edit by matching the task title/keywords against what get_all_tasks returns.
+4. If the user asks to set two existing tasks to the same time:
+   - If an explicit datetime is provided (e.g. "both at 5pm tomorrow"), update both tasks to that datetime.
+   - If no explicit datetime is provided (e.g. "Bob and Ke at the same time"), ask which time to use OR default to copying Bob's time into Ke.
+5. Call update_task_in_notion with the matched task's Notion page ID and the updated fields
    (deadline/priority/title/status). Do NOT create a new task when you're editing an existing one.
-4. Call get_all_tasks to reload.
-5. Call compute_pipeline to re-rank everything.
-6. Print the updated pipeline clearly, with urgency reasons.
+6. Call get_all_tasks to reload.
+7. Call compute_pipeline to re-rank everything.
+8. Print the updated pipeline clearly, with urgency reasons.
 
 ## When running the morning briefing (--briefing mode)
 1. Call get_current_datetime.
